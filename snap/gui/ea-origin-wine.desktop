@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=EA Origin
+Comment=EA Origin
+Exec=tmnationsforever
+Icon=${SNAP}/meta/gui/ea-origin.png
+Categories=Game;
+Terminal=false
+StartupNotify=true
+StartupWMClass=Origin.exe
+Keywords=game
