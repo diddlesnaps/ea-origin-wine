@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. "$SNAP/bin/snap-utils.sh"
+
+start_monitor

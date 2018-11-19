@@ -2,10 +2,11 @@ name: ea-origin-wine
 version: latest
 summary: Origin
 description: |
- EA Origin
- .
- run `snap connect ea-origin-wine:hardware-observe`, and
-     `snap connect ea-origin-wine:process-control`.
+  EA Origin
+  
+  Some games may require that you run one or both of the following:
+  `snap connect ea-origin-wine:hardware-observe`, or
+  `snap connect ea-origin-wine:process-control`.
 
 grade: stable
 confinement: strict
@@ -15,13 +16,17 @@ architectures:
 
 apps:
   ea-origin-wine:
-    command: env INSTALL_URL="https://download.dm.origin.com/origin/live/OriginThinSetup.exe"
-      $SNAP/bin/origin-writable-monitor $SNAP/bin/sommelier "$WINEPREFIX/drive_c/Program Files/Origin/Origin.exe"
+    command: bin/sommelier "$WINEPREFIX/drive_c/Program Files/Origin/Origin.exe"
     environment:
-      TRICKS: "corefonts vcrun2015 win7"
+      INSTALL_URL: "https://download.dm.origin.com/origin/live/OriginThinSetup.exe"
+      LAUNCH_AFTER_INSTALL: "false"
+      TRICKS: "corefonts vcrun2015 dotnet452 win7"
       WINEPREFIX: "$SNAP_USER_COMMON/.wine"
       DLLOVERRIDES: "mshtml=" # Prevent pop-ups about Wine Mono and Wine Gecko
       LC_ALL: "C.UTF-8"
+      SNAP_TITLE: "EA Origin"
+      SNAP_ICON: "$SNAP/meta/gui/ea-origin.png"
+      SNAP_SUPPORT_URL: "https://github.com/diddlesnaps/ea-origin-wine/issues"
     plugs:
       - desktop
       - desktop-legacy
@@ -30,9 +35,11 @@ apps:
       - joystick
       - network
       - network-bind
+      - network-observe
       - opengl
       - process-control
       - pulseaudio
+      - screen-inhibit-control
       - wayland
       - x11
   wineboot:
@@ -95,7 +102,7 @@ parts:
 
       ARCH="$(dpkg --print-architecture)"
       WINE_REL="wine-devel"
-      WINE_VER="3.10.0"
+      WINE_VER="3.20.0"
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
@@ -254,7 +261,7 @@ parts:
       - no-system-libraries
     source: scripts
     organize:
-      'origin-writable-monitor': bin/
+      'snap-*': bin/
       'sommelier': bin/
       'winetricks': bin/
       'zenity': bin/
