@@ -1,12 +1,17 @@
 name: ea-origin-wine
 version: latest
-summary: Origin
-description: |
-  EA Origin
-  
-  Some games may require that you run one or both of the following:
-  `snap connect ea-origin-wine:hardware-observe`, or
-  `snap connect ea-origin-wine:process-control`.
+summary: EA Origin
+description: >
+  Electronic Arts Origin™ running in the Windows™ compatibility layer "WINE"
+
+  This snap is community maintailed and is not affiliated with or endorsed by
+  Electronic Arts.
+
+  --
+
+  EA, Origin, and the Origin logo are Registered Trademarks of Electronic Arts
+  Limited.
+  Windows is a Registered Trademark of Microsoft Corporation.
 
 grade: stable
 confinement: strict
@@ -23,7 +28,6 @@ apps:
       TRICKS: "corefonts vcrun2015 dotnet452 win7"
       WINEPREFIX: "$SNAP_USER_COMMON/.wine"
       DLLOVERRIDES: "mshtml=" # Prevent pop-ups about Wine Mono and Wine Gecko
-      LC_ALL: "C.UTF-8"
       SNAP_TITLE: "EA Origin"
       SNAP_ICON: "$SNAP/meta/gui/ea-origin.png"
       SNAP_SUPPORT_URL: "https://github.com/diddlesnaps/ea-origin-wine/issues"
@@ -69,7 +73,6 @@ apps:
     environment:
       WINEPREFIX: "$SNAP_USER_COMMON/.wine"
       DLLOVERRIDES: "mshtml=" # Prevent pop-ups about Wine Mono and Wine Gecko
-      LC_ALL: "C.UTF-8"
     plugs:
       - desktop
       - desktop-legacy
@@ -101,19 +104,19 @@ parts:
       snapcraftctl build
 
       ARCH="$(dpkg --print-architecture)"
-      WINE_REL="wine-devel"
-      WINE_VER="3.20.0"
+      WINE_REL="wine-stable"
+      WINE_VER="4.0"
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
-      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/pool/main/${WINE_REL}_${WINE_VER}~xenial_${ARCH}.deb"
+      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/dists/xenial/main/binary-${ARCH}/${WINE_REL}_${WINE_VER}~xenial_${ARCH}.deb"
 
       ## wine loaders - this one is the native system architecture
-      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/pool/main/${WINE_REL}-${ARCH}_${WINE_VER}~xenial_${ARCH}.deb"
+      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/xenial/main/binary-${ARCH}/${WINE_REL}-${ARCH}_${WINE_VER}~xenial_${ARCH}.deb"
 
       if [ "$ARCH" = "amd64" ]; then
         ## on amd64 builds we need to also bundle the i386 wine loaders
-        DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/pool/main/${WINE_REL}-i386_${WINE_VER}~xenial_i386.deb"
+        DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/xenial/main/binary-i386/${WINE_REL}-i386_${WINE_VER}~xenial_i386.deb"
       fi
 
       for DEB_URL in ${DEB_URLS}; do
@@ -185,6 +188,7 @@ parts:
       - libxrender1
       - libxslt1.1
       - libxxf86vm1
+      - locales-all
       # Required for authentication - Observed in Steam and Track Mania
       - winbind
       - samba-libs

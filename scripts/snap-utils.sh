@@ -10,36 +10,33 @@ if [ ! -d "$GAMES_LIBRARY" ]; then
     mkdir -p "$GAMES_LIBRARY"
 fi
 
-MONITORED_DIR="$(dirname "$2")"
+MONITORED_DIR="$WINE_DIR"
 
-if [ "$SNAP_ARCH" = "amd64" ]; then
-    MONITORED_DIR="${MONITORED_DIR/"Program Files"/"Program Files (x86)"}"
+if [ ! -d "$MONITORED_DIR" ]; then
+    mkdir -p "$MONITORED_DIR"
 fi
 
-PIDFILE="$SNAP_USER_COMMON/.inotify-pid"
-KILLFILE="$SNAP_USER_COMMON/.kill-monitor"
-
-if [ -f "$PIDFILE" ]; then
-    touch "$KILLFILE"
-    kill "$(cat "$PIDFILE")"
-    sleep 2
-    rm -f "$KILLFILE" "$PIDFILE"
-fi
+function kill_monitor() {
+    pkill --parent "$(cat "$PIDFILE")" inotifywait
+}
 
 function start_monitor() {
+    kill_monitor
+    sleep 1
+
     INOTIFY_PID=
     start_timer &
-    while [ ! -f "$KILLFILE" ]; do
-        [ ! -d "$MONITORED_DIR" ] && continue
-        chmod 755 "$MONITORED_DIR"
-        inotifywait -e create,attrib "$MONITORED_DIR" &
-        INOTIFY_PID=$!
-        echo $INOTIFY_PID > "$PIDFILE"
-        wait $INOTIFY_PID
+
+    inotifywait -e attrib "$MONITORED_DIR" | while read path action file; do
+        [ ! -w "$MONITORED_DIR" ] && chmod 755 "$MONITORED_DIR"
     done &
+    INOTIFY_PID=$!
+    echo $INOTIFY_PID > "$PIDFILE"
 }
 
 function start_timer() {
     sleep 600
-    [ ! -f "$PIDFILE" ] || [ -z "$(cat "$PIDFILE")" ] && touch "$KILLFILE"
+    if [ ! -f "$PIDFILE" ] || [ -z "$(cat "$PIDFILE")" ]; then
+        kill_monitor
+    fi
 }
