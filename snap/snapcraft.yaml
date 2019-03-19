@@ -13,6 +13,7 @@ description: >
   Limited.
   Windows is a Registered Trademark of Microsoft Corporation.
 
+base: core18
 grade: stable
 confinement: strict
 architectures:
@@ -84,8 +85,6 @@ apps:
 parts:
   enable-i386:
     plugin: nil
-    build-attributes:
-      - no-system-libraries
     override-build: |
       snapcraftctl build
       if [ "$SNAPCRAFT_ARCH_TRIPLET" = "x86_64-linux-gnu" ]; then
@@ -95,8 +94,6 @@ parts:
 
   wine:
     plugin: nil
-    build-attributes:
-      - no-system-libraries
     build-packages:
       - dpkg
       - wget
@@ -104,19 +101,19 @@ parts:
       snapcraftctl build
 
       ARCH="$(dpkg --print-architecture)"
-      WINE_REL="wine-stable"
-      WINE_VER="4.0"
+      WINE_REL="wine-devel"
+      WINE_VER="4.4"
 
       # wget and dpkg extract the wine debs
       ## supporting binaries which are arch-specific but the same filenames in both architectures so we only install the native architecture
-      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/dists/xenial/main/binary-${ARCH}/${WINE_REL}_${WINE_VER}~xenial_${ARCH}.deb"
+      DEB_URLS="https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/${WINE_REL}_${WINE_VER}~bionic_${ARCH}.deb"
 
       ## wine loaders - this one is the native system architecture
-      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/xenial/main/binary-${ARCH}/${WINE_REL}-${ARCH}_${WINE_VER}~xenial_${ARCH}.deb"
+      DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-${ARCH}/${WINE_REL}-${ARCH}_${WINE_VER}~bionic_${ARCH}.deb"
 
       if [ "$ARCH" = "amd64" ]; then
         ## on amd64 builds we need to also bundle the i386 wine loaders
-        DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/xenial/main/binary-i386/${WINE_REL}-i386_${WINE_VER}~xenial_i386.deb"
+        DEB_URLS="$DEB_URLS https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/main/binary-i386/${WINE_REL}-i386_${WINE_VER}~bionic_i386.deb"
       fi
 
       for DEB_URL in ${DEB_URLS}; do
@@ -140,8 +137,6 @@ parts:
 
   wine-runtime:
     plugin: nil
-    build-attributes:
-      - no-system-libraries
     stage-packages:
       ### Depends from wine-devel-${SNAP_ARCH}_3.9.0~xenial_${SNAP_ARCH}.deb debian/control
       - libasound2
@@ -261,8 +256,6 @@ parts:
 
   ea-origin:
     plugin: dump
-    build-attributes:
-      - no-system-libraries
     source: scripts
     organize:
       'snap-*': bin/
