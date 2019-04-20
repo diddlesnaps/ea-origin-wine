@@ -1,8 +1,12 @@
 name: ea-origin-wine
 version: latest
-summary: EA Origin
-description: >
+summary: Origin
+description: |
   Electronic Arts Origin™ running in the Windows™ compatibility layer "WINE"
+  
+  Some games may require that you run one or both of the following:
+  `snap connect ea-origin-wine:hardware-observe`, or
+  `snap connect ea-origin-wine:process-control`.
 
   This snap is community maintailed and is not affiliated with or endorsed by
   Electronic Arts.
@@ -25,10 +29,11 @@ apps:
     command: bin/sommelier "$WINEPREFIX/drive_c/Program Files/Origin/Origin.exe"
     environment:
       INSTALL_URL: "https://download.dm.origin.com/origin/live/OriginThinSetup.exe"
-      LAUNCH_AFTER_INSTALL: "false"
       TRICKS: "corefonts vcrun2015 dotnet452 win7"
       WINEPREFIX: "$SNAP_USER_COMMON/.wine"
       DLLOVERRIDES: "mshtml=" # Prevent pop-ups about Wine Mono and Wine Gecko
+      LAUNCH_AFTER_INSTALL: "false"
+      LC_ALL: "C.UTF-8"
       SNAP_TITLE: "EA Origin"
       SNAP_ICON: "$SNAP/meta/gui/ea-origin.png"
       SNAP_SUPPORT_URL: "https://github.com/diddlesnaps/ea-origin-wine/issues"

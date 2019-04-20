@@ -1,22 +1,17 @@
 #!/bin/bash
 
-if [ "$SNAP_ARCH" != "i386" ] && [ "$SNAP_ARCH" != "amd64" ]; then
-  echo "Host architecture ($SNAP_ARCH) unsupported."
-  exit 1
-fi
-
 [ -z "${SNAP_TITLE}" ] && SNAP_TITLE="${SNAP_NAME}"
 NOTICE="The ${SNAP_TITLE} snap is experimental, built with development releases of upstream WINE and may not function as expected."
 if [ -n "$SNAP_SUPPORT_URL" ]; then
-  SUPPORT_TEXT="If you encounter issues please report them on the ${SNAP_TITLE} snap issue tracker:\\n\\n${SNAP_SUPPORT_URL}"
+  SUPPORT_TEXT="If you encounter issues please report them on the ${SNAP_TITLE} snap issue tracker:\n\n${SNAP_SUPPORT_URL}"
 else
-  SUPPORT_TEXT="If you encounter issues please report them to the snap author. You can find contact information by running \`snap info ${SNAP_NAME}\` in a terminal."
+  SUPPORT_TEXT="If you encounter issues please report them to the snap author. You can find contact information by running 'snap info ${SNAP_NAME}' in a terminal."
 fi
-NOTICE="$NOTICE\\n$SUPPORT_TEXT"
+NOTICE="$NOTICE\n$SUPPORT_TEXT"
 
 needs_update=true
 
-. "$SNAP_USER_DATA/.last_revision" 2>/dev/null || true
+. $SNAP_USER_DATA/.last_revision 2>/dev/null || true
 if [ "$SNAP_DESKTOP_LAST_REVISION" = "$SNAP_REVISION" ]; then
   needs_update=false
 fi
@@ -78,6 +73,8 @@ function install_app() {
     # Removes the cached installer
     rm -v "${TMPDIR}/${INSTALL_EXE}"
 
+    # env WINEARCH="${WINEARCH}" WINEPREFIX="${WINEPREFIX}" "${WINELOADER}" "${SNAP}/GalaxyRedist.exe" /silent
+
     if [ -f "$SNAP/bin/snap-post-install" ]; then
       . "$SNAP/bin/snap-post-install"
     fi
@@ -100,8 +97,12 @@ function launch_app() {
 
   WINEPID=
 
+  if [ -f "$SNAP/bin/snap-pre-start" ]; then
+    . "$SNAP/bin/snap-pre-start"
+  fi
+
   # Only use virtual desktop if it has been requested and we're running Xorg
-  if [ "${XDG_SESSION_TYPE}" == "x11" ] && [ "${VIRTDESKTOP}" == "1" ]; then
+  if [ "${XDG_SESSION_TYPE}" = "x11" ] && [ "${VIRTDESKTOP}" = "1" ]; then
     # Get the native resolution of the primary display.
     # Creating a virtual desktop the same size will eliminate bugs when
     # switching from fullscreen to windowed mode.
