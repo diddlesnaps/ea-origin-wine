@@ -33,6 +33,7 @@ apps:
       SNAP_ICON: "$SNAP/meta/gui/ea-origin.png"
       SNAP_SUPPORT_URL: "https://github.com/diddlesnaps/ea-origin-wine/issues"
     plugs:
+      - audio-playback
       - desktop
       - desktop-legacy
       - hardware-observe
